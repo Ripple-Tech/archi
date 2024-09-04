@@ -1,4 +1,3 @@
-"use client";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import React, { useRef, useState, useEffect } from "react";
@@ -17,7 +16,7 @@ export const BackgroundImagesWithCollision = ({
     <div
       ref={parentRef}
       className={cn(
-        "h-screen absolute inset-0 pointer-events-none overflow-hidden z-40", // positioned absolutely and behind other elements
+        "h-screen absolute inset-0 pointer-events-none overflow-hidden z-40",
         className
       )}
     >
@@ -61,37 +60,39 @@ const CollisionMechanism = React.forwardRef<
   const [cycleCollisionDetected, setCycleCollisionDetected] = useState(false);
 
   useEffect(() => {
-    const checkCollision = () => {
-      if (
-        imageRef.current &&
-        containerRef.current &&
-        parentRef.current &&
-        !cycleCollisionDetected
-      ) {
-        const imageRect = imageRef.current.getBoundingClientRect();
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const parentRect = parentRef.current.getBoundingClientRect();
+    if (typeof window !== "undefined") {
+      const checkCollision = () => {
+        if (
+          imageRef.current &&
+          containerRef.current &&
+          parentRef.current &&
+          !cycleCollisionDetected
+        ) {
+          const imageRect = imageRef.current.getBoundingClientRect();
+          const containerRect = containerRef.current.getBoundingClientRect();
+          const parentRect = parentRef.current.getBoundingClientRect();
 
-        if (imageRect.bottom >= containerRect.top) {
-          const relativeX =
-            imageRect.left - parentRect.left + imageRect.width / 2;
-          const relativeY = imageRect.bottom - parentRect.top;
+          if (imageRect.bottom >= containerRect.top) {
+            const relativeX =
+              imageRect.left - parentRect.left + imageRect.width / 2;
+            const relativeY = imageRect.bottom - parentRect.top;
 
-          setCollision({
-            detected: true,
-            coordinates: {
-              x: relativeX,
-              y: relativeY,
-            },
-          });
-          setCycleCollisionDetected(true);
+            setCollision({
+              detected: true,
+              coordinates: {
+                x: relativeX,
+                y: relativeY,
+              },
+            });
+            setCycleCollisionDetected(true);
+          }
         }
-      }
-    };
+      };
 
-    const animationInterval = setInterval(checkCollision, 50);
+      const animationInterval = setInterval(checkCollision, 50);
 
-    return () => clearInterval(animationInterval);
+      return () => clearInterval(animationInterval);
+    }
   }, [cycleCollisionDetected, containerRef]);
 
   useEffect(() => {
@@ -115,16 +116,24 @@ const CollisionMechanism = React.forwardRef<
         animate="animate"
         initial={{
           translateY: "-200px",
-          translateX: `${Math.random() * window.innerWidth}px`,
+          translateX: `${
+            typeof window !== "undefined" ? Math.random() * window.innerWidth : 0
+          }px`,
         }}
         variants={{
           animate: {
-            translateY: `${window.innerHeight + 100}px`,
-            translateX: `${Math.random() * window.innerWidth}px`,
+            translateY: `${
+              typeof window !== "undefined"
+                ? window.innerHeight + 100
+                : 0
+            }px`,
+            translateX: `${
+              typeof window !== "undefined" ? Math.random() * window.innerWidth : 0
+            }px`,
           },
         }}
         transition={{
-          duration: Math.random() * 8 + 6, // Adjusted duration for slower falling
+          duration: Math.random() * 8 + 6,
           repeat: Infinity,
           repeatType: "loop",
           ease: "linear",
